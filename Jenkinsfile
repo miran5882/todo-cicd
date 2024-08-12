@@ -9,8 +9,8 @@ pipeline {
     }
     stage('Build and Push Docker Image') {
       steps {
-        sh 'docker buildx build -t miran77/todo-app:${BUILD_ID} .'  // Build the image
-        sh 'docker push miran77/todo-app:${BUILD_ID}'        // Push to Docker Hub
+        sh 'sudo docker buildx build -t miran77/todo-app:${BUILD_ID} .'  // Build the image
+        sh 'sudo docker push miran77/todo-app:${BUILD_ID}'        // Push to Docker Hub
       }
     }
     stage('Deploy to EKS') {
