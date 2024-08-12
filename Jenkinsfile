@@ -9,13 +9,13 @@ pipeline {
     }
     stage('Build and Push Docker Image') {
       steps {
-        sh 'docker build -t miran77/todo-app:${BUILD_ID} .'  // Build the image
-        sh 'docker push miran77/todo-app:${BUILD_ID}'        // Push to Docker Hub
+        sh 'sudo docker build -t miran77/todo-app:${BUILD_ID} .'  // Build the image
+        sh 'sudo docker push miran77/todo-app:${BUILD_ID}'        // Push to Docker Hub
       }
     }
     stage('Deploy to EKS') {
       steps {
-        sh 'kubectl apply -f kubernetes-manifests'
+        sh 'sudo kubectl apply -f kubernetes-manifests'
       }
     }
   }
