@@ -15,7 +15,7 @@ pipeline {
     }
     stage('Deploy to EKS') {
       steps {
-        sh 'sudo kubectl apply -f kubernetes-manifests'
+        sh 'kubectl apply -f kubernetes-manifests'
       }
     }
   }
