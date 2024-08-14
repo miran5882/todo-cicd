@@ -22,7 +22,7 @@ pipeline {
           sh "echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin"
           
           // Build and push the image
-          def imageName = "miran77/todo-app:${BUILD_NUMBER}"
+          def imageName = "miran77/todo-app:latest"
           sh "docker build -t ${imageName} ."
           sh "docker push ${imageName}"
         }
