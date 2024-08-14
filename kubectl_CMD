@@ -1,0 +1,53 @@
+Core Commands
+kubectl get: Retrieves one or more resources.
+Examples: kubectl get pods, kubectl get deployments, kubectl get services
+kubectl describe: Provides detailed information about a specific resource.
+Examples: kubectl describe pod <pod-name>, kubectl describe deployment <deployment-name>
+kubectl create: Creates Kubernetes resources from a file or by using flags.
+Examples: kubectl create deployment <deployment-file.yaml>, kubectl create service clusterip <service-name> --tcp=80:8080
+kubectl delete: Deletes specified resources.
+Examples: kubectl delete deployment <deployment-name>, kubectl delete pod <pod-name>
+kubectl run: Creates and runs a pod.
+Example: kubectl run my-pod --image=nginx
+kubectl logs: Retrieves the logs of a container in a pod.
+Example: kubectl logs <pod-name>
+kubectl exec: Executes a commaCommandsnd in a container.
+Example: kubectl exec <pod-name> -- bash
+kubectl port-forward: Forwards local port to a pod's port.
+Example: kubectl port-forward <pod-name> 8080:8080
+
+
+
+Resource Management Commands
+kubectl apply: Creates, updates, or deletes resources based on the configuration in a file.
+Example: kubectl apply -f deployment.yaml
+kubectl rollout status: Waits for a deployment to complete.
+Example: kubectl rollout status deployment <deployment-name>
+kubectl rollout history: View deployment history.
+Example: kubectl rollout history deployment <deployment-name>
+kubectl rollout undo: Rolls back a deployment to a previous revision.
+Example: kubectl rollout undo deployment <deployment-name>
+kubectl scale: Sets the size of a deployment.
+Example: kubectl scale deployment <deployment-name> --replicas=3
+
+
+
+Cluster Management Commands
+kubectl config: Manages Kubernetes clusters, users, and contexts.
+Examples: kubectl config get-contexts, kubectl config use-context <context-name>
+kubectl cluster-info: Displays information about the cluster.
+Example: kubectl cluster-info
+kubectl top node: Displays resource usage for nodes.
+Example: kubectl top node
+kubectl top pod: Displays resource usage for pods.
+Example: kubectl top pod
+
+
+
+Additional Commands
+kubectl explain: Provides information about resources and their fields.
+Example: kubectl explain pod
+kubectl autoscale: Automatically scales deployments based on CPU utilization.
+Example: kubectl autoscale deployment <deployment-name> --min=2 --max=10
+kubectl debug: Launches a debugging container.
+Example: kubectl debug pod <pod-name>
