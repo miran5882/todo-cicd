@@ -34,7 +34,7 @@ spec:
 
       - name: todo-app
 
-        image: miran77/todo-app:latest
+        image: miran77/todo-app:${BUILD_NUMBER}
 
         ports:
 
