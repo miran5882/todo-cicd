@@ -1,6 +1,8 @@
 pipeline {
   agent any
-
+  environment {
+    DOCKERHUB_CREDENTIALS = credentials('dockerhub')
+  }
   stages {
     stage('Checkout') {
       steps {
@@ -9,14 +11,22 @@ pipeline {
     }
     stage('Build and Push Docker Image') {
       steps {
-        sh 'sudo docker buildx build -t miran77/todo-app:${BUILD_ID} .'  // Build the image
-        sh 'sudo docker push miran77/todo-app:${BUILD_ID}'        // Push to Docker Hub
+        sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+        sh 'docker build -t miran77/todo-app:${BUILD_NUMBER} .'
+        sh 'docker push miran77/todo-app:${BUILD_NUMBER}'
       }
     }
     stage('Deploy to EKS') {
       steps {
-        sh 'kubectl apply -f kubernetes-manifests'
+        withCredentials([file(credentialsId: 'k8scred', variable: 'KUBECONFIG')]) {
+          sh 'kubectl --kubeconfig=$KUBECONFIG apply -f kubernetes-manifests'
+        }
       }
+    }
+  }
+  post {
+    always {
+      sh 'docker logout'
     }
   }
 }
