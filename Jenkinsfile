@@ -15,9 +15,6 @@ pipeline {
           sh 'docker --version'  // Check Docker installation
           sh 'which docker'      // Check Docker path
           
-          // Remove any existing Docker config to ensure clean login
-          sh 'rm -f $HOME/.docker/config.json || true'
-          
           // Login to Docker Hub
           sh "echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin"
           
@@ -25,6 +22,9 @@ pipeline {
           def imageName = "miran77/todo-app:latest"
           sh "docker build -t ${imageName} ."
           sh "docker push ${imageName}"
+          
+          // Logout from Docker Hub
+          sh 'docker logout'
         }
       }
     }
@@ -34,12 +34,6 @@ pipeline {
           sh 'kubectl --kubeconfig=$KUBECONFIG apply -f kubernetes-manifests'
         }
       }
-    }
-  }
-  post {
-    always {
-      sh 'docker logout || true'
-      sh 'rm -f $HOME/.docker/config.json || true'
     }
   }
 }
