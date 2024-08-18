@@ -1,73 +1,40 @@
 pipeline {
-  agent any
-  environment {
-    DOCKERHUB_CREDENTIALS = credentials('dockerhub')
-    AWS_CREDENTIALS = credentials('aws')
-  }
-  stages {
-    stage('Checkout') {
-      steps {
-        checkout scm
-      }
+    agent any
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub')
+        AWS_CREDENTIALS = credentials('aws') // This credential might not be needed anymore
     }
-    stage('Build and Push Docker Image') {
-      steps {
-        script {
-          try {
-            sh 'docker --version'
-            sh 'which docker'
-            
-            // Login to Docker Hub
-            withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-              sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
             }
-            
-            // Build and push the image
-            def imageName = "miran77/todo-app:latest"
-            sh "docker build -t ${imageName} ."
-            sh "docker push ${imageName}"
-            
-            // Logout from Docker Hub
-            sh 'docker logout'
-          } catch (Exception e) {
-            currentBuild.result = 'FAILURE'
-            error("Failed to build or push Docker image: ${e.message}")
-          }
         }
-      }
-    }
-    stage('Deploy to EKS') {
-      steps {
-        script {
-          try {
-            withCredentials([
-              file(credentialsId: 'k8scred', variable: 'KUBECONFIG'),
-              [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws']
-            ]) {
-              // Configure AWS CLI
-              sh 'aws --version'
-              sh 'aws sts get-caller-identity'
-              
-              // Update kubeconfig
-              sh 'aws eks --region us-east-1 update-kubeconfig --name my-cluster'
-              
-              // Apply Kubernetes manifests
-              sh 'kubectl apply -f kubernetes-manifests'
+        stage('Build and Push Docker Image') {
+            steps {
+                script {
+                    // ... your build and push logic ...
+                }
             }
-          } catch (Exception e) {
-            currentBuild.result = 'FAILURE'
-            error("Failed to deploy to EKS: ${e.message}")
-          }
         }
-      }
+        stage('Deploy to Kubernetes') {
+            agent none
+            kubernetes {
+                cloud 'k8s'
+                namespace 'dev' // Replace with your namespace
+                container 'kubectl'
+                script {
+                    sh 'kubectl apply -f deployment.yaml' // Replace with your deployment file
+                }
+            }
+        }
     }
-  }
-  post {
-    success {
-      echo 'The Pipeline succeeded!'
+    post {
+        success {
+            echo 'The Pipeline succeeded!'
+        }
+        failure {
+            echo 'The Pipeline failed :('
+        }
     }
-    failure {
-      echo 'The Pipeline failed :('
-    }
-  }
 }
