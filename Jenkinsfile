@@ -18,13 +18,13 @@ pipeline {
             steps {
                 script {
                     // Build the Docker image
-                    sh 'docker build -t miran77/todo-app:${BUILD_NUMBER} .'
+                    sh 'docker build -t miran77/todo-app:latest .'
                     
                     // Login to DockerHub
                     sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
                     
                     // Push the image
-                    sh 'docker push miran77/todo-app:${BUILD_NUMBER}'
+                    sh 'docker push miran77/todo-app:latest'
                 }
             }
         }
@@ -33,12 +33,8 @@ pipeline {
             steps {
                 script {
                     // Configure kubectl (assuming AWS EKS)
-                    sh 'aws eks get-token --cluster-name your-cluster-name | kubectl apply -f -'
-                    
-                    // Update the deployment YAML with the new image tag
-                    sh """
-                    sed -i 's|image: miran77/todo-app:.*|image: miran77/todo-app:${BUILD_NUMBER}|' kubernetes-manifests/deployment.yaml
-                    """
+                    sh 'aws eks get-token --cluster-name your-cluster-name | echo | kubectl apply -f -'
+
                     
                     // Apply both deployment and service YAML files
                     sh '''
