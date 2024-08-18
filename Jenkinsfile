@@ -2,6 +2,7 @@ pipeline {
   agent any
   environment {
     DOCKERHUB_CREDENTIALS = credentials('dockerhub')
+    AWS_CREDENTIALS = credentials('aws')
   }
   stages {
     stage('Checkout') {
@@ -37,13 +38,34 @@ pipeline {
     }
     stage('Deploy to EKS') {
       steps {
-        withCredentials([file(credentialsId: 'k8scred', variable: 'KUBECONFIG')]) {
-          sh 'kubectl --kubeconfig=$KUBECONFIG apply -f kubernetes-manifests'
+        script {
+          try {
+            withCredentials([
+              file(credentialsId: 'k8scred', variable: 'KUBECONFIG'),
+              [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws']
+            ]) {
+              // Configure AWS CLI
+              sh 'aws --version'
+              sh 'aws sts get-caller-identity'
+              
+              // Update kubeconfig
+              sh 'aws eks --region us-east-1 update-kubeconfig --name my-cluster'
+              
+              // Apply Kubernetes manifests
+              sh 'kubectl apply -f kubernetes-manifests'
+            }
+          } catch (Exception e) {
+            currentBuild.result = 'FAILURE'
+            error("Failed to deploy to EKS: ${e.message}")
+          }
         }
       }
     }
   }
   post {
+    success {
+      echo 'The Pipeline succeeded!'
+    }
     failure {
       echo 'The Pipeline failed :('
     }
