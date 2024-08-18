@@ -13,14 +13,28 @@ pipeline {
     stage('Build and Push Docker Image') {
       steps {
         script {
-          // Your build and push logic goes here
+          // ... your build and push logic ...
         }
       }
     }
     stage('Deploy to Kubernetes') {
       steps {
-        script {
-          // Assuming kubectl is installed and configured on the Jenkins agent
+        kubernetes {
+          cloud 'k8s'
+          namespace 'dev' // Replace with your namespace
+          yaml '''
+            apiVersion: v1
+            kind: Pod
+            spec:
+              containers:
+              - name: kubectl
+                image: bitnami/kubectl:latest
+                command:
+                - cat
+                tty: true
+          '''
+        }
+        container('kubectl') {
           sh 'kubectl apply -f kubernetes-manifests'
         }
       }
