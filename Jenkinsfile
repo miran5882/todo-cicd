@@ -24,7 +24,7 @@ pipeline {
                 namespace 'dev' // Replace with your namespace
                 container 'kubectl'
                 script {
-                    sh 'kubectl apply -f deployment.yaml' // Replace with your deployment file
+                    sh 'kubectl apply -f kubernetes-manifests'
                 }
             }
         }
