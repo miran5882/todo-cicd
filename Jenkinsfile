@@ -5,6 +5,7 @@ pipeline {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub')
         GITHUB_CREDENTIALS = credentials('github')
         KUBERNETES_CREDENTIALS = credentials('k8scred')
+        CLUSTER_NAME = 'my-cluster'
     }
     
     stages {
@@ -32,11 +33,13 @@ pipeline {
         stage('Deploy to EKS') {
             steps {
                 script {
-                    // Configure kubectl (assuming AWS EKS)
-                    sh 'aws eks get-token --cluster-name your-cluster-name | echo | kubectl apply -f -'
-
+                    // Configure kubectl
+                    sh """
+                    aws eks --region us-east-1 update-kubeconfig --name ${CLUSTER_NAME}
+                    kubectl get nodes
+                    """
                     
-                    // Apply both deployment and service YAML files
+                    // Apply deployment and service YAML files
                     sh '''
                     kubectl apply -f kubernetes-manifests/deployment.yaml
                     kubectl apply -f kubernetes-manifests/service.yaml
