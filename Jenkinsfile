@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git credentialsId: 'github', url: 'https://github.com/miran5882/todo-cicd.git'
+                git branch: 'main', credentialsId: 'github', url: 'https://github.com/miran5882/todo-cicd.git'
             }
         }
         
